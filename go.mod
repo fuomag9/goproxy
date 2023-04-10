@@ -1,4 +1,4 @@
-module github.com/goproxy/goproxy
+module github.com/fuomag9/goproxy
 
 go 1.13
 
