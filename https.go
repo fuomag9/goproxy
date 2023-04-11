@@ -249,10 +249,10 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 					UserAgent: "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0",
 				}, req.Method)
 				if err != nil {
-					println("Request Failed: " + err.Error())
+					//println("Request Failed: " + err.Error())
 				}
 
-				println(response)
+				//println(response)
 
 				//Todo: do not force 200 okay lmao
 				resp := &http.Response{
