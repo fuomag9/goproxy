@@ -100,6 +100,14 @@ type halfClosable interface {
 
 var _ halfClosable = (*net.TCPConn)(nil)
 
+func ConvertToHTTPHeader(headers map[string]string) http.Header {
+	header := http.Header{}
+	for key, value := range headers {
+		header.Add(key, value)
+	}
+	return header
+}
+
 func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request) {
 	ctx := &ProxyCtx{Req: r, Session: atomic.AddInt64(&proxy.sess, 1), Proxy: proxy, certStore: proxy.CertStore}
 
@@ -264,9 +272,7 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 					Body:          ioutil.NopCloser(bytes.NewBufferString(response.Body)),
 					ContentLength: int64(bytes.NewBufferString(response.Body).Len()),
 					Request:       req,
-					Header: http.Header{
-						"Content-Type": {"text/plain"},
-					},
+					Header:        ConvertToHTTPHeader(response.Headers),
 				}
 
 				//req, resp := proxy.filterRequest(req, ctx)
