@@ -2,6 +2,7 @@ package goproxy
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"io"
@@ -15,6 +16,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
 
 type ConnectActionLiteral int
@@ -238,7 +241,36 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 				// information URL in the context when does HTTPS MITM
 				ctx.Req = req
 
-				req, resp := proxy.filterRequest(req, ctx)
+				client := cycletls.Init()
+
+				response, err := client.Do(req.URL.String(), cycletls.Options{
+					Body:      "",
+					Ja3:       "771,4865-4867-4866-49195-49199-52393-52392-49196-49200-49162-49161-49171-49172-51-57-47-53-10,0-23-65281-10-11-35-16-5-51-43-13-45-28-21,29-23-24-25-256-257,0",
+					UserAgent: "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:87.0) Gecko/20100101 Firefox/87.0",
+				}, req.Method)
+				if err != nil {
+					println("Request Failed: " + err.Error())
+				}
+
+				println(response)
+
+				//Todo: do not force 200 okay lmao
+				resp := &http.Response{
+					Status:        "200 OK",
+					StatusCode:    200,
+					Proto:         "HTTP/1.0",
+					ProtoMajor:    1,
+					ProtoMinor:    0,
+					Body:          ioutil.NopCloser(bytes.NewBufferString(response.Body)),
+					ContentLength: int64(body.Len()),
+					Request:       req,
+					Header: http.Header{
+						"Content-Type": {"text/plain"},
+					},
+				}
+
+				//req, resp := proxy.filterRequest(req, ctx)
+				//resp = response
 				if resp == nil {
 					if isWebSocketRequest(req) {
 						ctx.Logf("Request looks like websocket upgrade.")
