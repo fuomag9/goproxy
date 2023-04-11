@@ -262,7 +262,7 @@ func (proxy *ProxyHttpServer) handleHttps(w http.ResponseWriter, r *http.Request
 					ProtoMajor:    1,
 					ProtoMinor:    0,
 					Body:          ioutil.NopCloser(bytes.NewBufferString(response.Body)),
-					ContentLength: int64(body.Len()),
+					ContentLength: int64(bytes.NewBufferString(response.Body).Len()),
 					Request:       req,
 					Header: http.Header{
 						"Content-Type": {"text/plain"},
